@@ -1,4 +1,4 @@
-import SideBar from './solution';
+import SideBar from './index.js';// import SideBar from './solution';
 import { categoryFilterConfig, brandFilterConfig } from './config.js';
 
 describe('SideBar', () => {
