@@ -16,15 +16,12 @@ export default class FiltersList {
 
   get template() {
     return (
-      `<div class="filter-form__list-wrapper">
-        <div class="filters">
-          <fieldset>
-            <legend class="filters__group">${this.title}</legend>
-            <ul data-element="body">        
-            </ul>
-          </fieldset>
-        </div>
-      </div>`
+      `<fieldset>
+        <legend class="filters__group">${this.title}</legend>
+        <ul data-element="body"> 
+        ${this.getFilterOptions()} 
+        </ul>
+      </fieldset>`
     )
   }
 
@@ -46,7 +43,9 @@ export default class FiltersList {
   }
 
   update() {
-    this.getFilterOptions();
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = this.getFilterOptions();
+    this.subElements.body.replaceChildren(...wrapper.children);
   }
 
   reset() {
@@ -65,16 +64,12 @@ export default class FiltersList {
   }
 
   getFilterOptions() {
-    const wrapper = document.createElement('div');
-    const options = this.list.map(item => `<li class="filters__option filters__option_checkbox">
+    return this.list.map(item => `<li class="filters__option filters__option_checkbox">
       <div>
         <input type="checkbox" id="filter-${item.value}" ${item.checked ? "checked" : ""}>
         <label for="filter-${item.value}">${item.title}</label>
       </div>
       <span class="filters__count"></span>
-    </li>`);
-    wrapper.innerHTML = options.join('');
-    this.subElements.body.replaceChildren(...wrapper.children);
-    return options;
+    </li>`).join('');
   }
 }
