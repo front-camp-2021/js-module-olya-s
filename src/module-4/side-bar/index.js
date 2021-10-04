@@ -6,10 +6,9 @@ export default class SideBar {
 
   onClick = event => {
     if (event.target.className === 'filter-form__clear-button') {
-      console.log(event.target, this.subElements.filters.children);
-      // const filters = this.getFiltersGroups();
-      // Object.values(filters).forEach(item => console.log(item))
-      // this.update();
+      const filters = this.getFilterGroups();
+      Object.values(filters).forEach(item => item.reset());
+      this.update();
     }
   }
 
@@ -20,7 +19,7 @@ export default class SideBar {
 
     this.render();
     this.getSubElements();
-    this.getFiltersGroups();
+    this.getFilterGroups();
     this.update();
     this.addEventListeners();
   }
@@ -31,7 +30,7 @@ export default class SideBar {
         <button class="filter-form__submit-button" type="submit">&lt;&lt;</button>
       </h2>
       <div class="filter-form__list-wrapper">
-        <div class="filters" data-element="filters">
+        <div class="filters" data-element="body">
         </div>
       </div>
       <button class="filter-form__clear-button">Clear all filters</button>
@@ -58,23 +57,23 @@ export default class SideBar {
   }
 
   update() {
-    const filters = this.getFiltersGroups();
-    this.subElements.filters.replaceChildren(...Object.values(filters));
+    const filters = this.getFilterGroups();
+    console.log(Object.values(filters))
+    const filterElements = Object.values(filters).map(filter => filter && filter.element);
+    this.subElements.body.replaceChildren(...filterElements);
   }
 
   getSubElements() {
     const result = {};
     const elements = this.element.querySelectorAll('[data-element]');
-    console.log(elements)
     for (const subElement of elements) {
       const name = subElement.dataset.element;
       result[name] = subElement;
     }
     this.subElements = result;
-    console.log(this.subElements)
   }
 
-  getFiltersGroups() {
+  getFilterGroups(data) {
     let categoryFilterList = null;
     let brandFilterList = null;
     if (this.categoryFilter.length) {
@@ -82,16 +81,16 @@ export default class SideBar {
       categoryFilterList = new this.Component({
         title: title[0].toUpperCase() + title.slice(1),
         list: this.categoryFilter
-      }).element;
+      });
       const hr = document.createElement('hr');
-      categoryFilterList.appendChild(hr);
+      categoryFilterList.element.appendChild(hr);
     }
     if (this.brandFilter.length) {
       const title = this.brandFilter[0].value.split('=')[0];
       brandFilterList = new this.Component({
         title: title[0].toUpperCase() + title.slice(1),
         list: this.brandFilter
-      }).element;
+      });
     }
     const filters = { categoryFilterList, brandFilterList };
     return filters;
