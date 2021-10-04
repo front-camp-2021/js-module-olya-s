@@ -58,7 +58,6 @@ export default class SideBar {
 
   update() {
     const filters = this.getFilterGroups();
-    console.log(Object.values(filters))
     const filterElements = Object.values(filters).map(filter => filter && filter.element);
     this.subElements.body.replaceChildren(...filterElements);
   }
