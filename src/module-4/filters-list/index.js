@@ -2,6 +2,11 @@ export default class FiltersList {
   element;
   subElements = {};
 
+  onChange = event => {
+    const customEventName = event.target.checked ? 'add-filter' : 'remove-filter';
+    this.element.dispatchEvent(new CustomEvent(customEventName, { detail: event.target.value }));
+  }
+
   constructor({
     title = '',
     list = []
@@ -12,6 +17,7 @@ export default class FiltersList {
     this.render();
     this.getSubElements();
     this.update();
+    this.addEventListeners();
   }
 
   get template() {
@@ -33,6 +39,7 @@ export default class FiltersList {
 
   remove() {
     if (this.element) {
+      this.removeEventListeners();
       this.element.remove();
     }
   }
@@ -65,11 +72,19 @@ export default class FiltersList {
 
   getFilterOptions() {
     return this.list.map(item => `<li class="filters__option filters__option_checkbox">
-      <div>
-        <input type="checkbox" id="filter-${item.value}" ${item.checked ? "checked" : ""}>
+      <div data-element="option">
+        <input type="checkbox" id="filter-${item.value}" ${item.checked ? "checked" : ""} value=${item.value}>
         <label for="filter-${item.value}">${item.title}</label>
       </div>
       <span class="filters__count"></span>
     </li>`).join('');
+  }
+
+  addEventListeners() {
+    this.element.addEventListener('change', this.onChange);
+  }
+
+  removeEventListeners() {
+    this.element.removeEventListener('change', this.onChange);
   }
 }

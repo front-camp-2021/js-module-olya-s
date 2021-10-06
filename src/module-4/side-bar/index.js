@@ -1,15 +1,12 @@
-// import FiltersList from '../filters-list/index.js';
-
 export default class SideBar {
   element;
-  subElements;
+  subElements = {};
 
   onClick = event => {
-    if (event.target.className === 'filter-form__clear-button') {
-      const filters = this.getFilterGroups();
-      Object.values(filters).forEach(item => item.reset());
-      this.update();
-    }
+    const filters = this.getFilterGroups();
+    Object.values(filters).forEach(item => item.reset());
+    this.update();
+    this.element.dispatchEvent(new CustomEvent('clear-filters'));
   }
 
   constructor({ categoryFilter = [], brandFilter = [], Component = {} }) {
@@ -33,7 +30,7 @@ export default class SideBar {
         <div class="filters" data-element="body">
         </div>
       </div>
-      <button class="filter-form__clear-button">Clear all filters</button>
+      <button class="filter-form__clear-button" data-element="button">Clear all filters</button>
     </form>`
   }
 
@@ -45,12 +42,12 @@ export default class SideBar {
 
   remove() {
     if (this.element) {
+      this.removeEventListeners();
       this.element.remove();
     }
   }
 
   destroy() {
-    removeEventListener('click', this.onClick);
     this.remove();
     this.element = null;
     this.subElements = {};
@@ -96,6 +93,10 @@ export default class SideBar {
   }
 
   addEventListeners() {
-    this.element.addEventListener('click', this.onClick);
+    this.subElements.button.addEventListener('click', this.onClick);
+  }
+
+  removeEventListeners() {
+    this.subElements.button.removeEventListener('click', this.onClick);
   }
 }
