@@ -69,7 +69,7 @@ export default class SideBar {
     this.subElements = result;
   }
 
-  getFilterGroups(data) {
+  getFilterGroups() {
     let categoryFilterList = null;
     let brandFilterList = null;
     if (this.categoryFilter.length) {
