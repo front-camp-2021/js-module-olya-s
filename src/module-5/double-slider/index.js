@@ -23,7 +23,7 @@ export default class DoubleSlider {
 
   pointerMove = (event) => {
     const progress = this.subElements.progress;
-
+    const values = {};
     if (this.slider === this.subElements.thumbLeft) {
       let posX = event.pageX - this.shiftX;
       if (posX < this.outLeftX) {
@@ -52,11 +52,18 @@ export default class DoubleSlider {
       document.removeEventListener('pointerdown', this.pointerDown);
     }
 
+    const left = parseInt(this.subElements.progress.style.left.match(/\d+/));
+    const right = parseInt(this.subElements.progress.style.right.match(/\d+/));
+    const range = this.max - this.min;
+    const from = this.min + left * range / 100;
+    const to = this.max - right * range / 100;
+
     this.element.dispatchEvent(new CustomEvent('range-selected',
       {
         bubbles: true,
         detail: {
-          value: this.selected
+          filterName: this.filterName,
+          value: { from, to }
         }
       })
     );
@@ -132,10 +139,10 @@ export default class DoubleSlider {
     const posTo = this.max - to;
     this.subElements.thumbLeft.style.left = `${posFrom}%`;
     this.subElements.progress.style.left = `${posFrom}%`;
-    this.subElements.from.innerText = this.formatValue(this.selected.from);
+    this.subElements.from.innerText = this.formatValue(from);
     this.subElements.thumbRight.style.right = `${posTo}%`;
     this.subElements.progress.style.right = `${posTo}%`;
-    this.subElements.to.innerText = this.formatValue(this.selected.to);
+    this.subElements.to.innerText = this.formatValue(to);
   }
 
   getSubElements() {
