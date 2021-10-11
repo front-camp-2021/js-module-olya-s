@@ -117,7 +117,6 @@ export default class DoubleSlider {
     const wrapper = document.createElement('div');
     wrapper.innerHTML = this.template;
     this.element = wrapper.firstElementChild;
-    return this.element;
   }
 
   remove() {
