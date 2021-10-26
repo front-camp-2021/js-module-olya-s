@@ -9,6 +9,7 @@
     "json-server": "json-server",
     "lint": "eslint \"./src/**/*.js\""
   },
+  "proxy": "http://localhost:3000/",
   "keywords": [],
   "author": "",
   "license": "ISC",

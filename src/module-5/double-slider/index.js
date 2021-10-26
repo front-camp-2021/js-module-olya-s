@@ -81,15 +81,15 @@ export default class DoubleSlider {
       from: min,
       to: max
     },
-    precision = 0,
-    filterName = ''
+    filterName = '',
+    title = 'Price'
   } = {}) {
     this.min = min;
     this.max = max;
     this.formatValue = formatValue;
     this.selected = selected;
-    this.precision = precision;
     this.filterName = filterName;
+    this.title = title;
 
     this.render();
     this.getSubElements();
@@ -99,18 +99,21 @@ export default class DoubleSlider {
   get template() {
     const left = (this.selected.from - this.min) * 100 / (this.max - this.min);
     const right = (this.max - this.selected.to) * 100 / (this.max - this.min);
-    return `<div class="range-slider" data-element="rangeSlider">
-        <span data-element="from">${this.formatValue(this.selected.from)}</span>
-        <div class="range-slider__inner" data-element="sliderInner">
-          <span data-element="progress" class="range-slider__progress"
-            style="left: ${left}%; right: ${right}%"></span>
-          <span data-element="thumbLeft" class="range-slider__thumb-left"
-            style="left: ${left}%"></span>
-          <span data-element="thumbRight" class="range-slider__thumb-right"
-            style="right: ${right}%"></span>
+    return `<fieldset>
+        <legend class="filters__group">${this.title}</legend>
+        <div class="range-slider" data-element="rangeSlider">
+          <span data-element="from">${this.formatValue(this.selected.from)}</span>
+          <div class="range-slider__inner" data-element="sliderInner">
+            <span data-element="progress" class="range-slider__progress"
+              style="left: ${left}%; right: ${right}%"></span>
+            <span data-element="thumbLeft" class="range-slider__thumb-left"
+              style="left: ${left}%"></span>
+            <span data-element="thumbRight" class="range-slider__thumb-right"
+              style="right: ${right}%"></span>
+          </div>
+          <span data-element="to">${this.formatValue(this.selected.to)}</span>
         </div>
-        <span data-element="to">${this.formatValue(this.selected.to)}</span>
-      </div >`
+      </fieldset>`
   }
 
   render() {
@@ -142,6 +145,14 @@ export default class DoubleSlider {
     this.subElements.thumbRight.style.right = `${posTo}%`;
     this.subElements.progress.style.right = `${posTo}%`;
     this.subElements.to.innerText = this.formatValue(to);
+  }
+
+  reset() {
+    this.selected = {
+      from: this.min,
+      to: this.max
+    };
+    this.update();
   }
 
   getSubElements() {

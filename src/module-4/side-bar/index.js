@@ -1,23 +1,26 @@
+import FiltersList from '../filters-list/index.js';
+import DoubleSlider from '../../module-5/double-slider/index.js';
+
 export default class SideBar {
   element;
   subElements = {};
+  components = {};
 
-  onClick = event => {
-    const filters = this.getFilterGroups();
+  onClick = () => {
+    const filters = this.components;
     Object.values(filters).forEach(item => item.reset());
-    this.update();
+    this.update(this.categoryFilter, this.brandFilter);
     this.element.dispatchEvent(new CustomEvent('clear-filters'));
   }
 
-  constructor({ categoryFilter = [], brandFilter = [], Component = {} }) {
+  constructor(categoryFilter = [], brandFilter = []) {
     this.categoryFilter = categoryFilter;
     this.brandFilter = brandFilter;
-    this.Component = Component;
 
     this.render();
+    this.initializeComponents();
     this.getSubElements();
-    this.getFilterGroups();
-    this.update();
+    this.update(this.categoryFilter, this.brandFilter);
     this.addEventListeners();
   }
 
@@ -51,12 +54,24 @@ export default class SideBar {
     this.remove();
     this.element = null;
     this.subElements = {};
+    for (let component of Object.values(this.components)) {
+      component.destroy();
+    }
+    this.components = {};
   }
 
-  update() {
-    const filters = this.getFilterGroups();
+  update(categoryFilter, brandFilter) {
+    const filters = this.components;
     const filterElements = Object.values(filters).map(filter => filter && filter.element);
-    this.subElements.body.replaceChildren(...filterElements);
+    this.subElements.body.innerHTML = "";
+    filterElements.forEach((filter, index) => {
+      if (index) {
+        const hr = document.createElement('hr');
+        this.subElements.body.appendChild(hr);
+      }
+      this.subElements.body.appendChild(filter);
+    });
+    this.updateFilterGroups(categoryFilter, brandFilter);
   }
 
   getSubElements() {
@@ -69,27 +84,28 @@ export default class SideBar {
     this.subElements = result;
   }
 
-  getFilterGroups() {
-    let categoryFilterList = null;
-    let brandFilterList = null;
-    if (this.categoryFilter.length) {
-      const title = this.categoryFilter[0].value.split('=')[0];
-      categoryFilterList = new this.Component({
-        title: title[0].toUpperCase() + title.slice(1),
-        list: this.categoryFilter
-      });
-      const hr = document.createElement('hr');
-      categoryFilterList.element.appendChild(hr);
+  initializeComponents() {
+    const doubleSlider = new DoubleSlider;
+    const categoryFilterList = new FiltersList();
+    const brandFilterList = new FiltersList();
+    this.components = {
+      doubleSlider,
+      categoryFilterList,
+      brandFilterList
     }
-    if (this.brandFilter.length) {
-      const title = this.brandFilter[0].value.split('=')[0];
-      brandFilterList = new this.Component({
-        title: title[0].toUpperCase() + title.slice(1),
-        list: this.brandFilter
-      });
+  }
+
+  updateFilterGroups(categoryFilter, brandFilter) {
+    if (categoryFilter.length) {
+      let title = categoryFilter[0].value.split('=')[0];
+      title = title[0].toUpperCase() + title.slice(1);
+      this.components.categoryFilterList.update(title, categoryFilter);
     }
-    const filters = { categoryFilterList, brandFilterList };
-    return filters;
+    if (brandFilter.length) {
+      let title = brandFilter[0].value.split('=')[0];
+      title = title[0].toUpperCase() + title.slice(1);
+      this.components.brandFilterList.update(title, brandFilter);
+    }
   }
 
   addEventListeners() {

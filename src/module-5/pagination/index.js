@@ -11,7 +11,8 @@ export default class Pagination {
         this.goToNextPage();
       }
       if (event.target.className === 'pagination__link') {
-        this.update(+event.target.dataset.index);
+        this.currentPage = +event.target.dataset.index;
+        this.update({ currentPage: this.currentPage, totalPages: this.totalPages });
       }
     }
   }
@@ -32,11 +33,13 @@ export default class Pagination {
   }
 
   goToPrevPage() {
-    this.update(this.currentPage - 1);
+    this.currentPage--;
+    this.update({ currentPage: this.currentPage, totalPages: this.totalPages });
   }
 
   goToNextPage() {
-    this.update(this.currentPage + 1);
+    this.currentPage++;
+    this.update({ currentPage: this.currentPage, totalPages: this.totalPages });
   }
 
   remove() {
@@ -59,7 +62,7 @@ export default class Pagination {
         `<a class="pagination__link pagination__link_arrow" href="#">&lt;</a>`}
         </span>
         <ul class="pagination__list" data-element="pagesList">
-        ${this.getPages()}
+        ${this.getPages({ currentPage: this.currentPage, totalPages: this.totalPages })}
         </ul>
         <span class="pagination__item" data-element="nextPage">
           ${this.currentPage === this.totalPages ? `&gt;` :
@@ -74,23 +77,24 @@ export default class Pagination {
     this.element = wrapper.firstElementChild;
   }
 
-  update(number) {
-    this.currentPage = number;
-    if (this.currentPage === 1) {
+  update(data) {
+    const { currentPage, totalPages } = data;
+    this.totalPages = totalPages;
+    if (currentPage === 1) {
       this.subElements.prevPage.innerHTML = '&lt;';
     } else {
       this.subElements.prevPage.innerHTML = `<a class="pagination__link pagination__link_arrow" href="#">&lt;</a>`
     }
-    if (this.currentPage === this.totalPages) {
+    if (currentPage === totalPages) {
       this.subElements.nextPage.innerHTML = '&gt;';
     } else {
       this.subElements.nextPage.innerHTML = `<a class="pagination__link pagination__link_arrow" href="#">&gt;</a>`
     }
-    this.subElements.pagesList.innerHTML = this.getPages();
+    this.subElements.pagesList.innerHTML = this.getPages({ currentPage, totalPages });
 
     this.element.dispatchEvent(new CustomEvent('page-changed', {
       detail: {
-        page: number
+        page: currentPage
       }
     }));
   }
@@ -105,11 +109,24 @@ export default class Pagination {
     this.subElements = result;
   }
 
-  getPages() {
+  getPages({ currentPage, totalPages }) {
     const pages = [];
-    if (this.currentPage < this.start + 5) {
+    if (totalPages < this.viewPages) {
+      for (let i = this.start; i <= totalPages; i++) {
+        if (currentPage === i) {
+          pages[i] = `<li class="pagination__item pagination__item_current" 
+            data-element="current" data-index=${i}>${i}</li>`;
+        } else {
+          pages[i] = `<li class="pagination__item">
+            <a class="pagination__link" href="#" data-index=${i}>${i}</a>
+            </li>`;
+        }
+      }
+      return pages.join('');
+    }
+    if (currentPage < this.start + 5) {
       for (let i = this.start; i < this.viewPages - 1; i++) {
-        if (this.currentPage === i) {
+        if (currentPage === i) {
           pages[i] = `<li class="pagination__item pagination__item_current" 
             data-element="current" data-index=${i}>${i}</li>`;
         } else {
@@ -122,11 +139,11 @@ export default class Pagination {
         <a class="pagination__link" href="#" data-index=${this.start + 7}>...</a>
         </li>`;
       pages[this.viewPages] = `<li class="pagination__item">
-        <a class="pagination__link" href="#" data-index=${this.totalPages}>${this.totalPages}</a>
+        <a class="pagination__link" href="#" data-index=${totalPages}>${totalPages}</a>
         </li>`;
-    } else if (this.currentPage > this.totalPages - 5) {
-      for (let i = this.totalPages; i > this.totalPages - this.viewPages + 1; i--) {
-        if (this.currentPage === i) {
+    } else if (currentPage > totalPages - 5) {
+      for (let i = totalPages; i > totalPages - this.viewPages + 1; i--) {
+        if (currentPage === i) {
           pages[i] = `<li class="pagination__item pagination__item_current" 
             data-element="current" data-index=${i}>${i}</li>`;
         } else {
@@ -134,18 +151,18 @@ export default class Pagination {
             <a class="pagination__link" href="#" data-index=${i}>${i}</a></li>`;
         }
       }
-      pages[this.totalPages - this.viewPages + 2] = `<li class="pagination__item">
-        <a class="pagination__link" href="#" data-index=${this.totalPages - this.viewPages + 2}>...</a>
+      pages[totalPages - this.viewPages + 2] = `<li class="pagination__item">
+        <a class="pagination__link" href="#" data-index=${totalPages - this.viewPages + 2}>...</a>
         </li>`;
       pages[this.start] = `<li class="pagination__item">
         <a class="pagination__link" href="#" data-index=${this.start}>${this.start}</a></li>`;
     } else {
       pages[this.start] = `<li class="pagination__item">
         <a class="pagination__link" href="#" data-index=${this.start}>${this.start}</a></li>`;
-      pages[this.currentPage - 3] = `<li class="pagination__item">
-        <a class="pagination__link" href="#" data-index=${this.currentPage - 3}>...</a></li>`;
-      for (let i = this.currentPage - 2; i <= this.currentPage + 2; i++) {
-        if (this.currentPage === i) {
+      pages[currentPage - 3] = `<li class="pagination__item">
+        <a class="pagination__link" href="#" data-index=${currentPage - 3}>...</a></li>`;
+      for (let i = currentPage - 2; i <= currentPage + 2; i++) {
+        if (currentPage === i) {
           pages[i] = `<li class="pagination__item pagination__item_current" 
             data-element="current" data-index=${i}>${i}</li>`;
         } else {
@@ -153,10 +170,10 @@ export default class Pagination {
             <a class="pagination__link" href="#" data-index=${i}>${i}</a></li>`;
         }
       }
-      pages[this.totalPages] = `<li class="pagination__item">
-      <a class="pagination__link" href="#" data-index=${this.totalPages}>${this.totalPages}</a></li>`;
-      pages[this.currentPage + 3] = `<li class="pagination__item">
-        <a class="pagination__link" href="#" data-index=${this.currentPage + 3}>...</a></li>`;
+      pages[totalPages] = `<li class="pagination__item">
+      <a class="pagination__link" href="#" data-index=${totalPages}>${totalPages}</a></li>`;
+      pages[currentPage + 3] = `<li class="pagination__item">
+        <a class="pagination__link" href="#" data-index=${currentPage + 3}>...</a></li>`;
     }
     return pages.join('');
   }

@@ -4,7 +4,10 @@ export default class FiltersList {
 
   onChange = event => {
     const customEventName = event.target.checked ? 'add-filter' : 'remove-filter';
-    this.element.dispatchEvent(new CustomEvent(customEventName, { detail: event.target.value }));
+    this.element.dispatchEvent(new CustomEvent(customEventName, {
+      bubbles: true,
+      detail: event.target.value
+    }));
   }
 
   constructor({
@@ -16,16 +19,16 @@ export default class FiltersList {
 
     this.render();
     this.getSubElements();
-    this.update();
+    this.update(this.title, this.list);
     this.addEventListeners();
   }
 
   get template() {
     return (
       `<fieldset>
-        <legend class="filters__group">${this.title}</legend>
+        <legend class="filters__group" data-element="title">${this.title}</legend>
         <ul data-element="body"> 
-        ${this.getFilterOptions()} 
+        ${this.getFilterOptions(this.list)}
         </ul>
       </fieldset>`
     )
@@ -49,15 +52,18 @@ export default class FiltersList {
     this.element = null;
   }
 
-  update() {
+  update(title, list) {
     const wrapper = document.createElement('div');
-    wrapper.innerHTML = this.getFilterOptions();
+    wrapper.innerHTML = this.getFilterOptions(list);
+    this.subElements.title.innerHTML = title;
     this.subElements.body.replaceChildren(...wrapper.children);
   }
 
   reset() {
-    this.list.forEach(item => delete (item.checked));
-    this.update();
+    this.list.forEach(item => {
+      item.checked = false;
+    });
+    this.update(this.title, this.list);
   }
 
   getSubElements() {
@@ -70,14 +76,15 @@ export default class FiltersList {
     this.subElements = result;
   }
 
-  getFilterOptions() {
-    return this.list.map(item => `<li class="filters__option filters__option_checkbox">
+  getFilterOptions(list) {
+    return list.map(item => {
+      return `<li class="filters__option filters__option_checkbox">
       <div data-element="option">
-        <input type="checkbox" id="filter-${item.value}" ${item.checked ? "checked" : ""} value=${item.value}>
-        <label for="filter-${item.value}">${item.title}</label>
+        <input type="checkbox" id=${item.value} value=${item.value}>
+        <label for=${item.value}>${item.title}</label>
       </div>
       <span class="filters__count"></span>
-    </li>`).join('');
+    </li>`}).join('');
   }
 
   addEventListeners() {

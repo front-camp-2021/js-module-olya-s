@@ -2,7 +2,7 @@ export default class CardsList {
   element;
   subElements = {};
 
-  constructor({ data = [], Component = {} }) {
+  constructor({ data = [], Component = {} } = {}) {
     this.data = data;
     this.Component = Component;
 

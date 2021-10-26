@@ -17,15 +17,10 @@
 
   <script type="module">
     import SideBar from './index.js';
-    import FiltersList from '../filters-list/index.js';
 
     import { categoryFilterConfig, brandFilterConfig } from './config.js';
 
-    const sideBar = new SideBar({
-      categoryFilter: categoryFilterConfig,
-      brandFilter: brandFilterConfig,
-      Component: FiltersList
-    });
+    const sideBar = new SideBar(categoryFilterConfig, brandFilterConfig);
 
     root.append(sideBar.element);
 
