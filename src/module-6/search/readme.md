@@ -9,4 +9,4 @@
 
 Pagination компонент повинен зробити `dispatch` події `search-filter`
 по завершенню вводу тексту в `input`
-
+ 
